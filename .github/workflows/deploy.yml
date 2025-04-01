@@ -39,7 +39,11 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/weather-report:latest
+            # Clean up old images and containers
             docker stop weather-container || true
             docker rm weather-container || true
+            docker rmi ${{ secrets.DOCKER_HUB_USERNAME }}/weather-report:latest || true
+
+            # Pull the latest Docker image and run it
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/weather-report:latest
             docker run -d --name weather-container -p 80:80 ${{ secrets.DOCKER_HUB_USERNAME }}/weather-report:latest
