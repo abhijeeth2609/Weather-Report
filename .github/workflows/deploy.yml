@@ -1,4 +1,4 @@
-  name: Deploy Weather-Report App
+name: Deploy Weather-Report App
 
 on:
   push:
@@ -20,15 +20,15 @@ jobs:
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}  # Use the Personal Access Token here
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/weather-report:latest .
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/weather-report:latest
+          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/weatherapp:latest .
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/weatherapp:latest
 
   deploy:
-    needs: build  # Ensures deployment happens after build
+    needs: build  # Ensures deployment happens after the build
     runs-on: ubuntu-latest
 
     steps:
@@ -37,9 +37,9 @@ jobs:
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
-          private_key: ${{ secrets.SERVER_SSH_KEY }}  # SSH Private Key to authenticate
+          private_key: ${{ secrets.SERVER_SSH_KEY }}  # Use the SSH private key stored in GitHub secrets
           script: |
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/weather-report:latest
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/weatherapp:latest
             docker stop weather-container || true
             docker rm weather-container || true
-            docker run -d --name weather-container -p 80:80 ${{ secrets.DOCKER_HUB_USERNAME }}/weather-report:latest
+            docker run -d --name weather-container -p 80:80 ${{ secrets.DOCKER_HUB_USERNAME }}/weatherapp:latest
