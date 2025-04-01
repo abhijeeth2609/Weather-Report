@@ -1,4 +1,4 @@
-name: Deploy Weather-Report App
+  name: Deploy Weather-Report App
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}  # Use the Personal Access Token here
 
       - name: Build and Push Docker Image
         run: |
@@ -37,7 +37,7 @@ jobs:
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
-          password: ${{ secrets.SERVER_PASSWORD }}
+          private_key: ${{ secrets.SERVER_SSH_KEY }}  # SSH Private Key to authenticate
           script: |
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/weather-report:latest
             docker stop weather-container || true
