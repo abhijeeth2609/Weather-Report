@@ -28,8 +28,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
+            echo "Connected to server successfully!"  # Added connection message
             docker stop weatherapp || true
             docker rm weatherapp || true
             docker pull ${{ secrets.MY_DOCKER_USER }}/weatherapp:latest
             docker run -d --name weatherapp -p 80:80 ${{ secrets.MY_DOCKER_USER }}/weatherapp:latest
-
