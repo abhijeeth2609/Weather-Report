@@ -19,27 +19,33 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_HUB_USER}}
-          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          username: ${{ secrets.MY_DOCKER_USER }}  # Use your Docker Hub username stored in secrets
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}  # Use your Docker Hub password stored in secrets
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/weatherapp:latest .
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/weatherapp:latest
+          docker build -t ${{ secrets.MY_DOCKER_USER }}/weatherapp:latest .  # Build the image and tag it with the correct name
+          docker push ${{ secrets.MY_DOCKER_USER }}/weatherapp:latest  # Push the image to Docker Hub
 
   deploy:
-    needs: build  # Ensures deployment happens after the build
-    runs-on: ubuntu-latest
+    needs: build  # Ensures deployment happens after the build job completes
+    runs-on: ubuntu-latest  # Uses an Ubuntu virtual machine for deployment
 
     steps:
       - name: SSH into Server and Deploy
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@master  # Uses an SSH action to execute commands on the server
         with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          private_key: ${{ secrets.SERVER_SSH_KEY }}  # Use the SSH private key stored in GitHub secrets
+          host: ${{ secrets.SERVER_IP }}  # The IP address of your server
+          username: ${{ secrets.SERVER_USER }}  # The username for your server
+          password: ${{ secrets.SERVER_PASSWORD }}  # The password for your server
+          port: 22  # Default SSH port
           script: |
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/weatherapp:latest
+            # Stop the old container (if any) and remove it
             docker stop weather-container || true
             docker rm weather-container || true
-            docker run -d --name weather-container -p 80:80 ${{ secrets.DOCKER_HUB_USERNAME }}/weatherapp:latest
+
+            # Pull the latest Docker image from Docker Hub
+            docker pull ${{ secrets.MY_DOCKER_USER }}/weatherapp:latest
+
+            # Run the new Docker container
+            docker run -d --name weather-container -p 80:80 ${{ secrets.MY_DOCKER_USER }}/weatherapp:latest
