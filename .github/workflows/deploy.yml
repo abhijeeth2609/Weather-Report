@@ -14,48 +14,36 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Step 2: Install sshpass
-      - name: Install sshpass
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y sshpass
-
-      # Step 3: Set up Docker Buildx (for multi-platform support)
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      # Step 4: Log in to Docker Hub
+      # Step 2: Set up Docker and login to Docker Hub using GitHub secrets
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.MY_DOCKER_USER }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
-      # Step 5: Build the Docker image
-      - name: Build Docker image
+      # Step 3: Build and push Docker image to Docker Hub
+      - name: Build and push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/my-app:latest .
+          docker build -t ${{ secrets.MY_DOCKER_USER }}/your-image-name:latest .
+          docker push ${{ secrets.MY_DOCKER_USER }}/your-image-name:latest
 
-      # Step 6: Push the Docker image to Docker Hub
-      - name: Push Docker image
-        run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/my-app:latest
-
-      # Step 7: Run deployment script on the server
+      # Step 4: Install sshpass (if needed) for SSH login and run the deployment script
       - name: Run deployment script on server
         run: |
-          # Use sshpass to deploy to the remote server
-          sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh -T -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" << 'EOF'
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+          sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" << 'EOF'
           # Deployment commands
           echo "Deploying the application"
-
+  
           # Example deployment commands (replace with your own)
           cd /path/to/your/project
           git pull origin main
           docker-compose up -d
-          
+
           # Other commands you might want to run during deployment
           EOF
+
         env:
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
