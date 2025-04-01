@@ -24,8 +24,8 @@ jobs:
       # Step 3: Build and push Docker image to Docker Hub
       - name: Build and push Docker image
         run: |
-          docker build -t ${{ secrets.MY_DOCKER_USER }}/your-image-name:latest .
-          docker push ${{ secrets.MY_DOCKER_USER }}/your-image-name:latest
+          docker build -t ${{ secrets.MY_DOCKER_USER }}/weatherapp:latest .
+          docker push ${{ secrets.MY_DOCKER_USER }}/weatherapp:latest
 
       # Step 4: Install sshpass (if needed) for SSH login and run the deployment script
       - name: Run deployment script on server
