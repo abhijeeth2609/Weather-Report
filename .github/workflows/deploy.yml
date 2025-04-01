@@ -10,15 +10,18 @@ jobs:
     runs-on: ubuntu-latest  # Use an Ubuntu-based runner
 
     steps:
-      # Step 1: Checkout the code
+      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Step 2: Set up sshpass for the SSH connection
+      # Step 2: Install sshpass (needed for passing password via ssh)
+      - name: Install sshpass
+        run: sudo apt-get install sshpass
+
+      # Step 3: Run deployment script on your Ubuntu server
       - name: Run deployment script on server
         run: |
-          # Use sshpass to deploy to the remote server
-          sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" << 'EOF'
+          sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no "${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}" << 'EOF'
           # Deployment commands
           echo "Deploying the application"
 
@@ -34,4 +37,3 @@ jobs:
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
           SERVER_IP: ${{ secrets.SERVER_IP }}
-
