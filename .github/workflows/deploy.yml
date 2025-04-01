@@ -18,7 +18,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          docker build -t ${{ secrets.MY_DOCKER_USER }}/weatherapp:latest 
+          docker build -t ${{ secrets.MY_DOCKER_USER }}/weatherapp:latest .
           docker push ${{ secrets.MY_DOCKER_USER }}/weatherapp:latest
 
       - name: Deploy to VM via SSH
@@ -32,3 +32,4 @@ jobs:
             docker rm weatherapp || true
             docker pull ${{ secrets.MY_DOCKER_USER }}/weatherapp:latest
             docker run -d --name weatherapp -p 80:80 ${{ secrets.MY_DOCKER_USER }}/weatherapp:latest
+
