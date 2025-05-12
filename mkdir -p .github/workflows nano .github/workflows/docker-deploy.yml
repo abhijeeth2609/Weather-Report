@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI/CD: Docker Build, Push, Deploy
 
 on:
   push:
@@ -9,13 +9,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
+    - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Log in to DockerHub
+    - name: Login to DockerHub
       uses: docker/login-action@v3
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
@@ -26,16 +26,16 @@ jobs:
       with:
         context: .
         push: true
-        tags: your_dockerhub_username/weather-report:latest
+        tags: abhitache/weather-report:latest
 
-    - name: SSH into VM and run container
+    - name: Deploy on VM via SSH
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          docker pull your_dockerhub_username/weather-report:latest
+          docker pull abhitache/weather-report:latest
           docker stop weather-report || true
           docker rm weather-report || true
-          docker run -d --name weather-report -p 80:80 your_dockerhub_username/weather-report:latest
+          docker run -d --name weather-report -p 80:80 abhitache/weather-report:latest
